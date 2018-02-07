@@ -35,7 +35,7 @@ export default class Item extends React.Component<ItemProps, ItemState> {
             <input
                 value={editing ? this.state.currentNote : note}
                 disabled={editing == false}
-                onChange={(e) => { this.setState({currentNote: e.target.value}) }}
+                onChange={(e: SyntheticInputEvent<>) => { this.setState({currentNote: e.target.value}) }}
             />
             <button 
                 hidden={editing == true} 

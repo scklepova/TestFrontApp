@@ -109,7 +109,7 @@ export default class TodoList extends React.Component<ListProps, ListState> {
         return <div>List
             <input
                 value={this.state.inputValue}
-                onChange={(e) => this.setState({ inputValue: e.target.value })}
+                onChange={(e: SyntheticInputEvent<>) => this.setState({ inputValue: e.target.value })}
             />
             <button onClick={() => this.handleAddButtonClick()}>Add</button>
             {list}
