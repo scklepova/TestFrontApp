@@ -32,8 +32,8 @@ export default class TodoList extends React.Component<ListProps, ListState> {
     };
 
     changeItem(id: string, changeFunc: (item: ItemState) => ItemState) {
-        var index = this.state.items.findIndex(elem => elem.id === id);
-        var changedItem = {...this.state.items[index]};
+        const index = this.state.items.findIndex(elem => elem.id === id);
+        const changedItem = {...this.state.items[index]};
         this.setState({ items: [
             ...this.state.items.slice(0, index),
             changeFunc(this.state.items[index]),
@@ -84,16 +84,16 @@ export default class TodoList extends React.Component<ListProps, ListState> {
     }
 
     handleClearCompleted() {
-        var notCompletedItems = [...this.state.items].filter((item) => !item.checked);
+        const notCompletedItems = [...this.state.items].filter((item) => !item.checked);
         this.setState({ items: notCompletedItems });
     }
 
     render() {
-        var items = [...this.state.items];
-        var currentItems = this.state.filter != all
+        const items = [...this.state.items];
+        const currentItems = this.state.filter != all
             ? items.filter((value) => value.checked == (this.state.filter == checked))
             : items;
-        var list = currentItems.map((value) => 
+        const list = currentItems.map((value) => 
             <Item
                 key={value.id}
                 note={value.note}
