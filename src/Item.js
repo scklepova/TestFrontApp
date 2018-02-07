@@ -1,12 +1,12 @@
 // @flow
-import React from 'react'
+import * as React from 'react'
 
 type ItemProps = {
     note: string,
     checked: bool,
     editing: bool,
     onChecked: (checked: bool) => void,
-    onRemoved: (e: React.ChangeEvent) => void,
+    onRemoved: (e: Event) => void,
     onValueChanged: (value: string) => void,
     onEdit: () => void,
     onCancelEdit: () => void,
@@ -16,7 +16,7 @@ type ItemState = {
     currentNote: string,
 }
 
-export default class Item extends React.Component {
+export default class Item extends React.Component<ItemProps, ItemState> {
     props: ItemProps;
     state: ItemState = {
         currentNote: this.props.note,
