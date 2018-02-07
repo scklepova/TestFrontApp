@@ -24,11 +24,6 @@ module.system.node.resolve_dirname=node_modules
 module.system.node.resolve_dirname=local_modules
 
 module.name_mapper='^.*\.less+$' -> '<PROJECT_ROOT>/flow/StylesFlowStub'
-module.name_mapper='^property-chain$' -> '<PROJECT_ROOT>/local_modules/property-chain'
-module.name_mapper='^.*ReferenceLoader.*' -> '<PROJECT_ROOT>/flow/ReferenceStub'
-module.name_mapper='.*.md$' -> '<PROJECT_ROOT>/flow/MarkdownStub'
-module.name_mapper='^\(Domain/.*\)$' -> '<PROJECT_ROOT>/src/\1'
-module.name_mapper='^\(Commons/.*\)$' -> '<PROJECT_ROOT>/src/\1'
 
 esproposal.class_instance_fields=enable
 
