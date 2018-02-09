@@ -47,6 +47,7 @@ export default class TodoList extends React.Component<ListProps, ListState> {
     }
 
     handleAddButtonClick() {
+        if (!this.state.inputValue) return;
         this.setState({
             items: [
                 ...this.state.items,
@@ -120,7 +121,7 @@ export default class TodoList extends React.Component<ListProps, ListState> {
                 <div className={cn("first-row")}>
                     <ColumnStack stretch>
                         <Fit>
-                            <h1>todos</h1>
+                            <h1>Things to do</h1>
                         </Fit>
                         <Fit>
                             <RowStack baseline block gap={0}>
@@ -128,6 +129,9 @@ export default class TodoList extends React.Component<ListProps, ListState> {
                                     <Input
                                         value={this.state.inputValue}
                                         placeholder="What to do"
+                                        onKeyUp={(e: SyntheticKeyboardEvent<>) => {
+                                            if (e.keyCode === 13) this.handleAddButtonClick();
+                                        }}
                                         onChange={(e: SyntheticInputEvent<>) =>
                                             this.setState({ inputValue: e.target.value })
                                         }

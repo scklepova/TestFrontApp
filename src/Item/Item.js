@@ -81,50 +81,27 @@ export default class Item extends React.Component<ItemProps, ItemState> {
     }
 
     renderEditingItem(): React.Node {
-        const { editing, note, onClick, onEdit, onCancelEdit, onValueChanged, onRemoved } = this.props;
+        const { editing, note, onCancelEdit, onValueChanged } = this.props;
         return (
             <div>
                 <Input
                     value={editing ? this.state.currentNote : note}
                     disabled={editing === false}
+                    autoFocus
+                    onBlur={() => onValueChanged(this.state.currentNote)}
+                    onKeyUp={(e: SyntheticKeyboardEvent<>) => {
+                        if (e.keyCode === 27) {
+                            onCancelEdit();
+                            this.setState({ currentNote: note });
+                        }
+                        if (e.keyCode === 13) {
+                            onValueChanged(this.state.currentNote);
+                        }
+                    }}
                     onChange={(e: SyntheticInputEvent<>) => {
                         this.setState({ currentNote: e.target.value });
                     }}
                 />
-                <Kebab>
-                    <KebabItem
-                        hidden={editing === true}
-                        iconName="ok"
-                        text="Toggle"
-                        onClick={() => {
-                            onClick();
-                        }}
-                    />
-                    <KebabItem
-                        hidden={editing === true}
-                        iconName="edit"
-                        text="Edit"
-                        onClick={() => {
-                            onEdit();
-                            this.setState({ currentNote: note });
-                        }}
-                    />
-                    <KebabItem
-                        hidden={editing === false}
-                        text="Save"
-                        onClick={() => onValueChanged(this.state.currentNote)}
-                    />
-                    <KebabItem
-                        hidden={editing === false}
-                        text="Cancel"
-                        iconName=""
-                        onClick={() => {
-                            onCancelEdit();
-                            this.setState({ currentNote: note });
-                        }}
-                    />
-                    <KebabItem hidden={editing === true} iconName="trash" text="Delete" onClick={onRemoved} />
-                </Kebab>
             </div>
         );
     }
