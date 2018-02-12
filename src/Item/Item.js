@@ -2,7 +2,7 @@
 import * as React from "react";
 import Input from "retail-ui/components/Input";
 import Kebab from "retail-ui/components/Kebab";
-import KebabItem from "../KebabItem/KebabItem";
+import MenuItem from "retail-ui/components/MenuItem";
 import { RowStack, Fit } from "../layout";
 import cn from "./Item.less";
 
@@ -28,7 +28,7 @@ export default class Item extends React.Component<ItemProps, ItemState> {
     };
 
     renderReadonlyItem(): React.Node {
-        const { checked, onClick, note, editing, onValueChanged, onRemoved, onEdit, onCancelEdit } = this.props;
+        const { checked, onClick, note, onRemoved, onEdit } = this.props;
         return (
             <div onDoubleClick={() => onEdit()} onClick={() => onClick()}>
                 <RowStack className={cn("item")}>
@@ -36,40 +36,24 @@ export default class Item extends React.Component<ItemProps, ItemState> {
                         <label className={cn("note", { toggled: checked })}>{note}</label>
                     </Fit>
                     <Fit>
-                        <Kebab className={cn("kebab")}>
-                            <KebabItem
-                                hidden={editing === true}
-                                iconName="ok"
-                                text="Toggle"
-                                onClick={() => {
-                                    onClick();
-                                }}
-                            />
-                            <KebabItem
-                                hidden={editing === true}
-                                iconName="edit"
-                                text="Edit"
-                                onClick={() => {
-                                    onEdit();
-                                    this.setState({ currentNote: note });
-                                }}
-                            />
-                            <KebabItem
-                                hidden={editing === false}
-                                text="Save"
-                                onClick={() => onValueChanged(this.state.currentNote)}
-                            />
-                            <KebabItem
-                                hidden={editing === false}
-                                text="Cancel"
-                                iconName=""
-                                onClick={() => {
-                                    onCancelEdit();
-                                    this.setState({ currentNote: note });
-                                }}
-                            />
-                            <KebabItem hidden={editing === true} iconName="trash" text="Delete" onClick={onRemoved} />
-                        </Kebab>
+                        <div onClick={(e: SyntheticEvent<>) => e.stopPropagation()}>
+                            <Kebab className={cn("kebab")}>
+                                <MenuItem icon="ok" onClick={onClick}>
+                                    Toggle
+                                </MenuItem>
+                                <MenuItem
+                                    icon="edit"
+                                    onClick={() => {
+                                        onEdit();
+                                        this.setState({ currentNote: note });
+                                    }}>
+                                    Edit
+                                </MenuItem>
+                                <MenuItem icon="trash" onClick={onRemoved}>
+                                    Delete
+                                </MenuItem>
+                            </Kebab>
+                        </div>
                     </Fit>
                 </RowStack>
             </div>

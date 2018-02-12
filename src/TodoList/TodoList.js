@@ -4,6 +4,8 @@ import { ColumnStack, RowStack, Fit } from "../layout";
 import Item from "../Item/Item";
 import Button from "retail-ui/components/Button";
 import Input from "retail-ui/components/Input/Input";
+import Tabs from "retail-ui/components/Tabs";
+import Tab from "retail-ui/components/Tabs/Tab";
 import cn from "./TodoList.less";
 
 type ListProps = {};
@@ -101,26 +103,24 @@ export default class TodoList extends React.Component<ListProps, ListState> {
                 ? items.filter(value => value.checked === (this.state.filter === checked))
                 : items;
         const list = currentItems.map(value => (
-            <Fit>
-                <Item
-                    key={value.id}
-                    note={value.note}
-                    checked={value.checked}
-                    editing={value.editing}
-                    onRemoved={() => this.handleItemRemoved(value.id)}
-                    onClick={() => this.handleItemChecked(value.id, !value.checked)}
-                    onValueChanged={newNote => this.handleItemChanged(value.id, newNote)}
-                    onEdit={() => this.handleEditItem(value.id)}
-                    onCancelEdit={() => this.handleCancelEdit(value.id)}
-                />
-            </Fit>
+            <Item
+                key={value.id}
+                note={value.note}
+                checked={value.checked}
+                editing={value.editing}
+                onRemoved={() => this.handleItemRemoved(value.id)}
+                onClick={() => this.handleItemChecked(value.id, !value.checked)}
+                onValueChanged={newNote => this.handleItemChanged(value.id, newNote)}
+                onEdit={() => this.handleEditItem(value.id)}
+                onCancelEdit={() => this.handleCancelEdit(value.id)}
+            />
         ));
 
         return (
             <div>
                 <div>
                     <h1 className={cn("header")}>Things to do</h1>
-                    <ColumnStack stretch className={cn("list")}>
+                    <ColumnStack horizontalAlign="center" className={cn("body")}>
                         <Fit>
                             <div>
                                 <RowStack baseline block gap={0}>
@@ -146,41 +146,31 @@ export default class TodoList extends React.Component<ListProps, ListState> {
                                 </RowStack>
                             </div>
                         </Fit>
-                        {list}
                         <Fit>
-                            <div className={cn("buttons-row")}>
-                                <div
-                                    className={cn("buttons-item", { "chosen-filter": this.state.filter === all })}
-                                    disabled={this.state.filter === all}
-                                    onClick={() => {
-                                        this.setState({ filter: all });
-                                    }}>
-                                    All
-                                </div>
-                                <div
-                                    className={cn("buttons-item", { "chosen-filter": this.state.filter === unchecked })}
-                                    disabled={this.state.filter === unchecked}
-                                    onClick={() => {
-                                        this.setState({ filter: unchecked });
-                                    }}>
-                                    Active
-                                </div>
-
-                                <div
-                                    className={cn("buttons-item", { "chosen-filter": this.state.filter === checked })}
-                                    disabled={this.state.filter === checked}
-                                    onClick={() => {
-                                        this.setState({ filter: checked });
-                                    }}>
-                                    Completed
-                                </div>
-
-                                <div
-                                    hidden={this.state.items.some(x => x.checked)}
-                                    className={cn("buttons-item", "clear-completed")}
-                                    onClick={() => this.handleClearCompleted()}>
-                                    Clear completed
-                                </div>
+                            <div className={cn("buttons-row", { hidden: this.state.items.length === 0 })}>
+                                <Tabs
+                                    value={this.state.filter}
+                                    onChange={(_, value: FilterType) => this.setState({ filter: value })}>
+                                    <Tab id={all}>
+                                        <label className={cn("tab-label")}>All</label>
+                                    </Tab>
+                                    <Tab id={unchecked}>
+                                        <label className={cn("tab-label")}>Active</label>
+                                    </Tab>
+                                    <Tab id={checked}>
+                                        <label className={cn("tab-label")}>Completed</label>
+                                    </Tab>
+                                </Tabs>
+                            </div>
+                        </Fit>
+                        <Fit>
+                            <div className={cn("list")}>{list}</div>
+                        </Fit>
+                        <Fit>
+                            <div
+                                className={cn("clear-completed", { hidden: !this.state.items.some(x => x.checked) })}
+                                onClick={() => this.handleClearCompleted()}>
+                                Clear completed
                             </div>
                         </Fit>
                     </ColumnStack>
