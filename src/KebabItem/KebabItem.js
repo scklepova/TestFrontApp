@@ -15,7 +15,14 @@ export default class KebabItem extends React.Component<KebabItemProps> {
         const { text, disabled, hidden, iconName, onClick } = this.props;
         const icon = iconName ? <Icon name={iconName} /> : "";
         return (
-            <div className={cn("root")} disabled={disabled} hidden={hidden} onClick={onClick}>
+            <div
+                className={cn("root")}
+                disabled={disabled}
+                hidden={hidden}
+                onClick={e => {
+                    onClick();
+                    e.stopPropagation();
+                }}>
                 {icon}
                 {text}
             </div>

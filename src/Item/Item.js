@@ -1,11 +1,9 @@
 // @flow
 import * as React from "react";
 import Input from "retail-ui/components/Input";
-import Button from "retail-ui/components/Button";
-import Checkbox from "retail-ui/components/Checkbox";
 import Kebab from "retail-ui/components/Kebab";
 import KebabItem from "../KebabItem/KebabItem";
-import { RowStack, Fit, Fill, Fixed } from "../layout";
+import { RowStack, Fit } from "../layout";
 import cn from "./Item.less";
 
 type ItemProps = {
@@ -32,12 +30,10 @@ export default class Item extends React.Component<ItemProps, ItemState> {
     renderReadonlyItem(): React.Node {
         const { checked, onClick, note, editing, onValueChanged, onRemoved, onEdit, onCancelEdit } = this.props;
         return (
-            <div>
+            <div onDoubleClick={() => onEdit()} onClick={() => onClick()}>
                 <RowStack className={cn("item")}>
                     <Fit>
-                        <label onClick={() => onClick()} className={cn("note", { toggled: checked })}>
-                            {note}
-                        </label>
+                        <label className={cn("note", { toggled: checked })}>{note}</label>
                     </Fit>
                     <Fit>
                         <Kebab className={cn("kebab")}>
@@ -107,7 +103,7 @@ export default class Item extends React.Component<ItemProps, ItemState> {
     }
 
     render(): React.Node {
-        const { checked, onClick, note, editing, onValueChanged, onRemoved, onEdit, onCancelEdit } = this.props;
+        const { editing } = this.props;
         let item;
         if (editing === true) {
             item = this.renderEditingItem();

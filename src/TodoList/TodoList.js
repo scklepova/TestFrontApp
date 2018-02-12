@@ -1,6 +1,6 @@
 // @flow
 import * as React from "react";
-import { ColumnStack, RowStack, Fit, Fill } from "../layout";
+import { ColumnStack, RowStack, Fit } from "../layout";
 import Item from "../Item/Item";
 import Button from "retail-ui/components/Button";
 import Input from "retail-ui/components/Input/Input";
@@ -118,33 +118,33 @@ export default class TodoList extends React.Component<ListProps, ListState> {
 
         return (
             <div>
-                <div className={cn("first-row")}>
-                    <ColumnStack stretch>
+                <div>
+                    <h1 className={cn("header")}>Things to do</h1>
+                    <ColumnStack stretch className={cn("list")}>
                         <Fit>
-                            <h1>Things to do</h1>
-                        </Fit>
-                        <Fit>
-                            <RowStack baseline block gap={0}>
-                                <Fit>
-                                    <Input
-                                        value={this.state.inputValue}
-                                        placeholder="What to do"
-                                        onKeyUp={(e: SyntheticKeyboardEvent<>) => {
-                                            if (e.keyCode === 13) this.handleAddButtonClick();
-                                        }}
-                                        onChange={(e: SyntheticInputEvent<>) =>
-                                            this.setState({ inputValue: e.target.value })
-                                        }
-                                    />
-                                </Fit>
-                                <Fit>
-                                    <Button
-                                        disabled={!this.state.inputValue}
-                                        onClick={() => this.handleAddButtonClick()}>
-                                        + Add
-                                    </Button>
-                                </Fit>
-                            </RowStack>
+                            <div>
+                                <RowStack baseline block gap={0}>
+                                    <Fit className={cn("new-item")}>
+                                        <Input
+                                            value={this.state.inputValue}
+                                            placeholder="What to do"
+                                            onKeyUp={(e: SyntheticKeyboardEvent<>) => {
+                                                if (e.keyCode === 13) this.handleAddButtonClick();
+                                            }}
+                                            onChange={(e: SyntheticInputEvent<>) =>
+                                                this.setState({ inputValue: e.target.value })
+                                            }
+                                        />
+                                    </Fit>
+                                    <Fit>
+                                        <Button
+                                            disabled={!this.state.inputValue}
+                                            onClick={() => this.handleAddButtonClick()}>
+                                            + Add
+                                        </Button>
+                                    </Fit>
+                                </RowStack>
+                            </div>
                         </Fit>
                         {list}
                         <Fit>
@@ -176,8 +176,8 @@ export default class TodoList extends React.Component<ListProps, ListState> {
                                 </div>
 
                                 <div
-                                    hidden={this.state.filter !== checked}
-                                    className={cn("buttons-item")}
+                                    hidden={this.state.items.some(x => x.checked)}
+                                    className={cn("buttons-item", "clear-completed")}
                                     onClick={() => this.handleClearCompleted()}>
                                     Clear completed
                                 </div>
