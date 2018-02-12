@@ -3,9 +3,8 @@ import * as React from "react";
 import { ColumnStack, RowStack, Fit } from "../layout";
 import Item from "../Item/Item";
 import Button from "retail-ui/components/Button";
-import Input from "retail-ui/components/Input/Input";
+import Input from "retail-ui/components/Input";
 import Tabs from "retail-ui/components/Tabs";
-import Tab from "retail-ui/components/Tabs/Tab";
 import cn from "./TodoList.less";
 
 type ListProps = {};
@@ -53,7 +52,12 @@ export default class TodoList extends React.Component<ListProps, ListState> {
         this.setState({
             items: [
                 ...this.state.items,
-                { note: this.state.inputValue, checked: false, editing: false, id: Date.now().toString() },
+                {
+                    note: this.state.inputValue,
+                    checked: false,
+                    editing: false,
+                    id: Date.now().toString(),
+                },
             ],
             inputValue: "",
         });
@@ -126,13 +130,15 @@ export default class TodoList extends React.Component<ListProps, ListState> {
                                 <RowStack baseline block gap={0}>
                                     <Fit className={cn("new-item")}>
                                         <Input
-                                            value={this.state.inputValue}
+                                            value={this.state.inputValue || ""}
                                             placeholder="What to do"
-                                            onKeyUp={(e: SyntheticKeyboardEvent<>) => {
+                                            onKeyUp={e => {
                                                 if (e.keyCode === 13) this.handleAddButtonClick();
                                             }}
-                                            onChange={(e: SyntheticInputEvent<>) =>
-                                                this.setState({ inputValue: e.target.value })
+                                            onChange={(e, value) =>
+                                                this.setState({
+                                                    inputValue: value,
+                                                })
                                             }
                                         />
                                     </Fit>
@@ -147,19 +153,22 @@ export default class TodoList extends React.Component<ListProps, ListState> {
                             </div>
                         </Fit>
                         <Fit>
-                            <div className={cn("buttons-row", { hidden: this.state.items.length === 0 })}>
+                            <div
+                                className={cn("buttons-row", {
+                                    hidden: this.state.items.length === 0,
+                                })}>
                                 <Tabs
                                     value={this.state.filter}
                                     onChange={(_, value: FilterType) => this.setState({ filter: value })}>
-                                    <Tab id={all}>
+                                    <Tabs.Tab id={all}>
                                         <label className={cn("tab-label")}>All</label>
-                                    </Tab>
-                                    <Tab id={unchecked}>
+                                    </Tabs.Tab>
+                                    <Tabs.Tab id={unchecked}>
                                         <label className={cn("tab-label")}>Active</label>
-                                    </Tab>
-                                    <Tab id={checked}>
+                                    </Tabs.Tab>
+                                    <Tabs.Tab id={checked}>
                                         <label className={cn("tab-label")}>Completed</label>
-                                    </Tab>
+                                    </Tabs.Tab>
                                 </Tabs>
                             </div>
                         </Fit>
@@ -168,7 +177,9 @@ export default class TodoList extends React.Component<ListProps, ListState> {
                         </Fit>
                         <Fit>
                             <div
-                                className={cn("clear-completed", { hidden: !this.state.items.some(x => x.checked) })}
+                                className={cn("clear-completed", {
+                                    hidden: !this.state.items.some(x => x.checked),
+                                })}
                                 onClick={() => this.handleClearCompleted()}>
                                 Clear completed
                             </div>

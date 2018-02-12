@@ -11,7 +11,7 @@ type ItemProps = {
     checked: boolean,
     editing: boolean,
     onClick: () => void,
-    onRemoved: (e: Event) => void,
+    onRemoved: (e: SyntheticEvent<>) => void,
     onValueChanged: (value: string) => void,
     onEdit: () => void,
     onCancelEdit: () => void,
@@ -78,8 +78,8 @@ export default class Item extends React.Component<ItemProps, ItemState> {
                             onValueChanged(this.state.currentNote);
                         }
                     }}
-                    onChange={(e: SyntheticInputEvent<>) => {
-                        this.setState({ currentNote: e.target.value });
+                    onChange={(e, value) => {
+                        this.setState({ currentNote: value });
                     }}
                 />
             </div>
