@@ -102,9 +102,17 @@ export default class TodoList extends React.Component<ListProps, ListState> {
         this.setState({ items: notCompletedItems });
     }
 
-    componentWillMount() {
+    updateItems() {
         this.setState({ loading: true });
         this.state.api.getItems().then(items => this.setState({ items: items, loading: false }));
+    }
+
+    componentWillMount() {
+        this.updateItems();
+
+        setInterval(_ => {
+            this.updateItems();
+        }, 20000);
     }
 
     render(): React.Node {
