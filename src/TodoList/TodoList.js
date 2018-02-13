@@ -5,7 +5,9 @@ import Item from "../Item/Item";
 import Button from "retail-ui/components/Button";
 import Input from "retail-ui/components/Input";
 import Tabs from "retail-ui/components/Tabs";
+import Loader from "retail-ui/components/Loader";
 import cn from "./TodoList.less";
+import { TodoApi, ITodoApi } from "../Api/TodoApi";
 
 type ListProps = {};
 
@@ -19,6 +21,8 @@ type ListState = {
     items: Array<ItemState>,
     inputValue: string,
     filter: FilterType,
+    api: ITodoApi,
+    loading: boolean,
 };
 
 type ItemState = {
@@ -34,37 +38,34 @@ export default class TodoList extends React.Component<ListProps, ListState> {
         items: [],
         inputValue: "",
         filter: all,
+        api: new TodoApi(),
+        loading: false,
     };
 
     changeItem(id: string, changeFunc: (item: ItemState) => ItemState) {
         const index = this.state.items.findIndex(elem => elem.id === id);
+        const updatedItem = changeFunc(this.state.items[index]);
+        this.state.api.addOrUpdateItem(updatedItem);
         this.setState({
-            items: [
-                ...this.state.items.slice(0, index),
-                changeFunc(this.state.items[index]),
-                ...this.state.items.slice(index + 1),
-            ],
+            items: [...this.state.items.slice(0, index), updatedItem, ...this.state.items.slice(index + 1)],
         });
     }
 
     handleAddButtonClick() {
         if (!this.state.inputValue) return;
-        this.setState({
-            items: [
-                ...this.state.items,
-                {
-                    note: this.state.inputValue,
-                    checked: false,
-                    editing: false,
-                    id: Date.now().toString(),
-                },
-            ],
-            inputValue: "",
-        });
+        const newItem = {
+            note: this.state.inputValue,
+            checked: false,
+            editing: false,
+            id: Date.now().toString(),
+        };
+        this.state.api.addOrUpdateItem(newItem);
+        this.setState({ items: [...this.state.items, newItem], inputValue: "" });
     }
 
     handleItemRemoved(id: string) {
         const index = this.state.items.findIndex(elem => elem.id === id);
+        this.state.api.removeItem(id);
         this.setState({
             items: [...this.state.items.slice(0, index), ...this.state.items.slice(index + 1)],
         });
@@ -97,7 +98,13 @@ export default class TodoList extends React.Component<ListProps, ListState> {
 
     handleClearCompleted() {
         const notCompletedItems = [...this.state.items].filter(item => !item.checked);
+        this.state.api.setItems(notCompletedItems);
         this.setState({ items: notCompletedItems });
+    }
+
+    componentWillMount() {
+        this.setState({ loading: true });
+        this.state.api.getItems().then(items => this.setState({ items: items, loading: false }));
     }
 
     render(): React.Node {
@@ -124,67 +131,69 @@ export default class TodoList extends React.Component<ListProps, ListState> {
             <div>
                 <div>
                     <h1 className={cn("header")}>Things to do</h1>
-                    <ColumnStack horizontalAlign="center" className={cn("body")}>
-                        <Fit>
-                            <div>
-                                <RowStack baseline block gap={0}>
-                                    <Fit className={cn("new-item")}>
-                                        <Input
-                                            value={this.state.inputValue || ""}
-                                            placeholder="What to do"
-                                            onKeyUp={e => {
-                                                if (e.keyCode === 13) this.handleAddButtonClick();
-                                            }}
-                                            onChange={(e, value) =>
-                                                this.setState({
-                                                    inputValue: value,
-                                                })
-                                            }
-                                        />
-                                    </Fit>
-                                    <Fit>
-                                        <Button
-                                            disabled={!this.state.inputValue}
-                                            onClick={() => this.handleAddButtonClick()}>
-                                            + Add
-                                        </Button>
-                                    </Fit>
-                                </RowStack>
-                            </div>
-                        </Fit>
-                        <Fit>
-                            <div
-                                className={cn("buttons-row", {
-                                    hidden: this.state.items.length === 0,
-                                })}>
-                                <Tabs
-                                    value={this.state.filter}
-                                    onChange={(_, value: FilterType) => this.setState({ filter: value })}>
-                                    <Tabs.Tab id={all}>
-                                        <label className={cn("tab-label")}>All</label>
-                                    </Tabs.Tab>
-                                    <Tabs.Tab id={unchecked}>
-                                        <label className={cn("tab-label")}>Active</label>
-                                    </Tabs.Tab>
-                                    <Tabs.Tab id={checked}>
-                                        <label className={cn("tab-label")}>Completed</label>
-                                    </Tabs.Tab>
-                                </Tabs>
-                            </div>
-                        </Fit>
-                        <Fit>
-                            <div className={cn("list")}>{list}</div>
-                        </Fit>
-                        <Fit>
-                            <div
-                                className={cn("clear-completed", {
-                                    hidden: !this.state.items.some(x => x.checked),
-                                })}
-                                onClick={() => this.handleClearCompleted()}>
-                                Clear completed
-                            </div>
-                        </Fit>
-                    </ColumnStack>
+                    <Loader type="big" active={this.state.loading}>
+                        <ColumnStack horizontalAlign="center" className={cn("body")}>
+                            <Fit>
+                                <div>
+                                    <RowStack baseline block gap={0}>
+                                        <Fit className={cn("new-item")}>
+                                            <Input
+                                                value={this.state.inputValue || ""}
+                                                placeholder="What to do"
+                                                onKeyUp={e => {
+                                                    if (e.keyCode === 13) this.handleAddButtonClick();
+                                                }}
+                                                onChange={(e, value) =>
+                                                    this.setState({
+                                                        inputValue: value,
+                                                    })
+                                                }
+                                            />
+                                        </Fit>
+                                        <Fit>
+                                            <Button
+                                                disabled={!this.state.inputValue}
+                                                onClick={() => this.handleAddButtonClick()}>
+                                                + Add
+                                            </Button>
+                                        </Fit>
+                                    </RowStack>
+                                </div>
+                            </Fit>
+                            <Fit>
+                                <div
+                                    className={cn("buttons-row", {
+                                        hidden: this.state.items.length === 0,
+                                    })}>
+                                    <Tabs
+                                        value={this.state.filter}
+                                        onChange={(_, value: FilterType) => this.setState({ filter: value })}>
+                                        <Tabs.Tab id={all}>
+                                            <label className={cn("tab-label")}>All</label>
+                                        </Tabs.Tab>
+                                        <Tabs.Tab id={unchecked}>
+                                            <label className={cn("tab-label")}>Active</label>
+                                        </Tabs.Tab>
+                                        <Tabs.Tab id={checked}>
+                                            <label className={cn("tab-label")}>Completed</label>
+                                        </Tabs.Tab>
+                                    </Tabs>
+                                </div>
+                            </Fit>
+                            <Fit>
+                                <div className={cn("list")}>{list}</div>
+                            </Fit>
+                            <Fit>
+                                <div
+                                    className={cn("clear-completed", {
+                                        hidden: !this.state.items.some(x => x.checked),
+                                    })}
+                                    onClick={() => this.handleClearCompleted()}>
+                                    Clear completed
+                                </div>
+                            </Fit>
+                        </ColumnStack>
+                    </Loader>
                 </div>
             </div>
         );
