@@ -23,6 +23,8 @@ type ListState = {
     filter: FilterType,
     api: ITodoApi,
     loading: boolean,
+    error: boolean,
+    timerId?: IntervalID,
 };
 
 type ItemState = {
@@ -40,11 +42,12 @@ export default class TodoList extends React.Component<ListProps, ListState> {
         filter: all,
         api: new TodoApi(),
         loading: false,
+        error: false,
     };
 
-    changeItem(id: string, changeFunc: (item: ItemState) => ItemState) {
+    changeItem(id: string, update: $Shape<ItemState>) {
         const index = this.state.items.findIndex(elem => elem.id === id);
-        const updatedItem = changeFunc(this.state.items[index]);
+        const updatedItem = { ...this.state.items[index], ...update };
         this.state.api.addOrUpdateItem(updatedItem);
         this.setState({
             items: [...this.state.items.slice(0, index), updatedItem, ...this.state.items.slice(index + 1)],
@@ -72,28 +75,20 @@ export default class TodoList extends React.Component<ListProps, ListState> {
     }
 
     handleItemChecked(id: string, checked: boolean) {
-        this.changeItem(id, item => {
-            return { ...item, checked: checked };
-        });
+        this.changeItem(id, { checked: checked });
     }
 
     handleItemChanged(id: string, newNote: string) {
-        this.changeItem(id, item => {
-            return { ...item, note: newNote, editing: false };
-        });
+        this.changeItem(id, { note: newNote, editing: false });
     }
 
     handleEditItem(id: string) {
         if (this.state.items.some(item => item.editing)) return;
-        this.changeItem(id, item => {
-            return { ...item, editing: true };
-        });
+        this.changeItem(id, { editing: true });
     }
 
     handleCancelEdit(id: string) {
-        this.changeItem(id, item => {
-            return { ...item, editing: false };
-        });
+        this.changeItem(id, { editing: false });
     }
 
     handleClearCompleted() {
@@ -104,15 +99,26 @@ export default class TodoList extends React.Component<ListProps, ListState> {
 
     updateItems() {
         this.setState({ loading: true });
-        this.state.api.getItems().then(items => this.setState({ items: items, loading: false }));
+        this.state.api
+            .getItems()
+            .then(
+                items => this.setState({ items: items, loading: false, error: false }),
+                _ => this.setState({ error: true, loading: false })
+            );
     }
 
     componentWillMount() {
         this.updateItems();
 
-        setInterval(_ => {
-            this.updateItems();
-        }, 20000);
+        this.setState({
+            timerId: setInterval(_ => {
+                this.updateItems();
+            }, 5000),
+        });
+    }
+
+    componentWillUnmount() {
+        if (this.state.timerId) clearInterval(this.state.timerId);
     }
 
     render(): React.Node {
@@ -167,6 +173,11 @@ export default class TodoList extends React.Component<ListProps, ListState> {
                                         </Fit>
                                     </RowStack>
                                 </div>
+                            </Fit>
+                            <Fit>
+                                <label className={cn("error", { hidden: !this.state.error })}>
+                                    {"Can't fetch items list"}
+                                </label>
                             </Fit>
                             <Fit>
                                 <div

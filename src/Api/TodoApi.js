@@ -17,6 +17,7 @@ const itemsKey = "items";
 export class TodoApi implements ITodoApi {
     async getItems(): Promise<TodoItem[]> {
         await this.delay(1000);
+        if (Math.random() < 0.5) throw Error("oops");
         const items = JSON.parse(localStorage.getItem(itemsKey));
         return items ? items : [];
     }
